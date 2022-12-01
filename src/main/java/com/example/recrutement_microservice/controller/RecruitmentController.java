@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/v1/offers")
+@RequestMapping("/api/v1/recruit")
 public class RecruitmentController {
 
     private RecruitmentProducer recruitmentProducer;
@@ -57,6 +57,12 @@ public class RecruitmentController {
         recruitmentProducer.sendMessage("Ce candidat est désormais employé " +employe.getPrenom() + " "+ employe.getNom() +" à " + employe.getEmployeur().getEntreprise());
         return "Nouvel employé ...";
     }
+
+    public String notifyOfferSupressed(@RequestBody Offer offer) throws InterruptedException {
+        recruitmentProducer.sendMessage("L'offre à l'intitulé " +offer.getTitle().toUpperCase() + " n'est plus disponible." );
+        return "Offre supprimée ...";
+    }
+
     public RecruitmentController(RecruitmentProducer recruitmentProducer) {
         this.recruitmentProducer = recruitmentProducer;
     }
@@ -122,4 +128,14 @@ public class RecruitmentController {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+    @DeleteMapping("/offers/{id}")
+    public ResponseEntity<HttpStatus> deleteOffer(@PathVariable("id") long id) throws ResourceNotFoundException, InterruptedException {
+        Offer offer = offerRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Not Offer found with id = " + id));
+        offerRepository.deleteById(id);
+        notifyOfferSupressed(offer);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
 }
