@@ -32,6 +32,19 @@ public class RecruitmentController {
 
     @Autowired
     private EmployeRepository employeRepository;
+
+    @GetMapping("/employes")
+    public List<Employe> getAllEmployes() {
+        return employeRepository.findAll();
+    }
+
+    @GetMapping("/employes/{id}")
+    public ResponseEntity<Employe> getEmployeById(@PathVariable(value = "id") Long employeId)
+            throws ResourceNotFoundException {
+        Employe employe = employeRepository.findById(employeId)
+                .orElseThrow(() -> new ResourceNotFoundException("Employe not found for this id :: " + employeId));
+        return ResponseEntity.ok().body(employe);
+    }
     @GetMapping("/{offerId}/chercheurs")
     public ResponseEntity<List<Chercheur>> getAllChercheursByOfferId(@PathVariable(value = "offerId") Long offerId) throws ResourceNotFoundException {
         if (!offerRepository.existsById(offerId)) {
@@ -127,6 +140,14 @@ public class RecruitmentController {
         employeRepository.deleteById(id);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/offers/{id}")
+    public ResponseEntity<Offer> getOfferById(@PathVariable(value = "id") Long offerId)
+            throws ResourceNotFoundException {
+        Offer offer = offerRepository.findById(offerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Offer not found for this id :: " + offerId));
+        return ResponseEntity.ok().body(offer);
     }
 
     @DeleteMapping("/offers/{id}")

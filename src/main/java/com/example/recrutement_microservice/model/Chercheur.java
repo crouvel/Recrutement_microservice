@@ -17,7 +17,7 @@ public class Chercheur {
     private Long id;
     //...
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
